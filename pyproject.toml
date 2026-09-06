@@ -1,0 +1,20 @@
+[project]
+name = "tbc"
+version = "0.1.0"
+description = "Play Maia from your terminal"
+readme = "README.md"
+authors = [
+    { name = "Callum Oakley", email = "hello@callumoakley.net" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "chess>=1.11.2",
+]
+license = "MIT"
+
+[project.scripts]
+tbc = "tbc:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"

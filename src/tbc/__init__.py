@@ -20,10 +20,32 @@ def main():
         help="The Elo that Maia will aim to emulate (default: 1500)",
         type=int,
     )
+    parser.add_argument(
+        "-f",
+        "--fen",
+        help="Initial position in FEN",
+    )
+    parser.add_argument(
+        "-c",
+        "--colour",
+        help="Colour to play as (default: random)",
+        choices=["w", "b"],
+    )
     args = parser.parse_args()
 
-    player_colour = random.choice([chess.WHITE, chess.BLACK])
-    board = chess.Board()
+    match args.colour:
+        case "w":
+            player_colour = chess.WHITE
+        case "b":
+            player_colour = chess.BLACK
+        case _:
+            player_colour = random.choice([chess.WHITE, chess.BLACK])
+
+    if args.fen:
+        board = chess.Board(args.fen)
+    else:
+        board = chess.Board()
+
     model = "maia3-79m"
 
     with chess.engine.SimpleEngine.popen_uci(

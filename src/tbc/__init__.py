@@ -31,6 +31,12 @@ def main():
         help="Colour to play as (default: random)",
         choices=["w", "b"],
     )
+    parser.add_argument(
+        "-b",
+        "--board",
+        help="Display a board after each move",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     match args.colour:
@@ -60,6 +66,9 @@ def main():
         stderr=subprocess.DEVNULL,
     ) as engine:
         while not board.is_game_over():
+            if args.board:
+                print(board)
+
             if board.turn is chess.WHITE:
                 print(f"{board.fullmove_number:3d}. ", end="")
             else:

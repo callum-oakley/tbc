@@ -58,30 +58,32 @@ def turn(
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="tbc", description="Play Maia from your terminal"
+        prog="tbc",
+        description="Play Maia from your terminal",
+        epilog="Supported commands: !board, !fen, !undo",
     )
     parser.add_argument(
         "-e",
         "--elo",
         default="1500",
-        help="The Elo that Maia will aim to emulate (default: 1500)",
+        help="the Elo that Maia will aim to emulate (default: 1500)",
         type=int,
     )
     parser.add_argument(
         "-f",
         "--fen",
-        help="Initial position in FEN",
+        help="initial position in FEN",
     )
     parser.add_argument(
         "-c",
         "--colour",
-        help="Colour to play as (default: random)",
+        help="colour to play as (default: random)",
         choices=["w", "b"],
     )
     parser.add_argument(
         "-b",
         "--board",
-        help="Display a board after each move",
+        help="display a board after each move",
         action="store_true",
     )
     args = parser.parse_args()

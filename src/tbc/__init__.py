@@ -9,6 +9,53 @@ import chess.engine
 import chess.pgn
 
 
+def turn(
+    args: argparse.Namespace, board: chess.Board, engine: chess.engine.SimpleEngine
+):
+    if args.board:
+        print(board)
+
+    if board.turn is chess.WHITE:
+        print(f"{board.fullmove_number:3d}. ", end="")
+    else:
+        print("     ", end="")
+    if board.turn is args.colour:
+        while True:
+            cmd = input()
+            if cmd.startswith("!"):
+                match cmd:
+                    case "!board":
+                        print(board)
+                    case "!fen":
+                        print(board.fen())
+                    case "!undo":
+                        board.pop()
+                        board.pop()
+                        return
+                    case _:
+                        print("unknown command")
+                print("     ", end="")
+                continue
+
+            try:
+                move = board.parse_san(cmd)
+                break
+            except chess.InvalidMoveError:
+                print("invalid move\n     ", end="")
+            except chess.IllegalMoveError:
+                print("illegal move\n     ", end="")
+            except chess.AmbiguousMoveError:
+                print("ambiguous move\n     ", end="")
+    else:
+        result = engine.play(board, limit=chess.engine.Limit(nodes=1))
+        if result.move is None:
+            return
+        move = result.move
+        print(board.san(move))
+
+    board.push(move)
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="tbc", description="Play Maia from your terminal"
@@ -41,11 +88,11 @@ def main():
 
     match args.colour:
         case "w":
-            player_colour = chess.WHITE
+            args.colour = chess.WHITE
         case "b":
-            player_colour = chess.BLACK
+            args.colour = chess.BLACK
         case _:
-            player_colour = random.choice([chess.WHITE, chess.BLACK])
+            args.colour = random.choice([chess.WHITE, chess.BLACK])
 
     if args.fen:
         board = chess.Board(args.fen)
@@ -66,44 +113,7 @@ def main():
         stderr=subprocess.DEVNULL,
     ) as engine:
         while not board.is_game_over():
-            if args.board:
-                print(board)
-
-            if board.turn is chess.WHITE:
-                print(f"{board.fullmove_number:3d}. ", end="")
-            else:
-                print("     ", end="")
-            if board.turn is player_colour:
-                while True:
-                    cmd = input()
-                    if cmd.startswith("!"):
-                        match cmd:
-                            case "!board":
-                                print(board)
-                            case "!fen":
-                                print(board.fen())
-                            case _:
-                                print("unknown command")
-                        print("     ", end="")
-                        continue
-
-                    try:
-                        move = board.parse_san(cmd)
-                        break
-                    except chess.InvalidMoveError:
-                        print("invalid move\n     ", end="")
-                    except chess.IllegalMoveError:
-                        print("illegal move\n     ", end="")
-                    except chess.AmbiguousMoveError:
-                        print("ambiguous move\n     ", end="")
-            else:
-                result = engine.play(board, limit=chess.engine.Limit(nodes=1))
-                if result.move is None:
-                    break
-                move = result.move
-                print(board.san(move))
-
-            board.push(move)
+            turn(args, board, engine)
 
     game = chess.pgn.Game.from_board(board)
     game.headers["Event"] = "tbc practice game"
@@ -112,7 +122,7 @@ def main():
         datetime.datetime.today(),  # noqa: DTZ002
         "%Y.%m.%d",
     )
-    if player_colour is chess.WHITE:
+    if args.colour is chess.WHITE:
         game.headers["White"] = os.environ["USER"]
         game.headers["Black"] = f"{model} {args.elo} Elo"
     else:

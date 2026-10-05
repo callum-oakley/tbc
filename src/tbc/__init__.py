@@ -56,7 +56,7 @@ def turn(
     board.push(move)
 
 
-def main():
+def run():
     parser = argparse.ArgumentParser(
         prog="tbc",
         description="Play Maia from your terminal",
@@ -131,3 +131,10 @@ def main():
         game.headers["White"] = f"{model} {args.elo} Elo"
         game.headers["Black"] = os.environ["USER"]
     print(f"\n{game}\n")
+
+
+def main():
+    try:
+        run()
+    except KeyboardInterrupt:
+        print()
